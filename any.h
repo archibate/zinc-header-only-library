@@ -1,7 +1,9 @@
 #pragma once
 
-#include "common.h"
+#include <memory>
+#include <variant>
 #include <cstdint>
+#include <any>
 
 
 namespace zinc {
