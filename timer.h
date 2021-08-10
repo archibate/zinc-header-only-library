@@ -11,7 +11,6 @@ class Timer {
 public:
     using ClockType = std::chrono::high_resolution_clock;
 
-private:
     struct Record {
         std::string tag;
         int us;
@@ -20,6 +19,7 @@ private:
             : tag(std::move(tag_)), us(us_) {}
     };
 
+private:
     static Timer *current;
     static std::vector<Record> records;
 
@@ -35,8 +35,11 @@ public:
     Timer(std::string_view tag_) : Timer(std::move(tag_), ClockType::now()) {}
     ~Timer() { _destroy(ClockType::now()); }
 
+    static auto const &getRecords() { return records; }
     static void print();
 };
+
+#define ZINC_TIMER ::zinc::Timer _zinc_timer(__func__);
 
 }
 
@@ -80,9 +83,9 @@ void Timer::print() {
     for (auto const &[tag, us]: records) {
         auto &stat = stats[tag];
         stat.total_us += us;
-        stat.count_rec++;
         stat.max_us = std::max(stat.max_us, us);
         stat.min_us = stat.count_rec ? stat.min_us : std::min(stat.min_us, us);
+        stat.count_rec++;
     }
 
     std::vector<std::pair<std::string, Statistic>> sortstats;
@@ -108,8 +111,7 @@ void Timer::print() {
 namespace {
     static struct TimerAtexitHelper {
         ~TimerAtexitHelper() {
-            if (getenv("ZEN_PRINTSTAT"))
-                Timer::print();
+            Timer::print();
         }
     } timerAtexitHelper;
 }
