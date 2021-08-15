@@ -2,6 +2,8 @@
 
 #include <array>
 #include <cmath>
+#include <cstdint>
+#include <cstddef>
 
 namespace zinc {
 
@@ -134,15 +136,23 @@ template <class T> using decay_vec_t = typename decay_vec<T>::type;
 
 /* converter functions */
 
-template <class OtherT, class T> auto vec_to_other(vec<2, T> const &a) {
+template <class T, std::enable_if_t<!is_vec_v<T>, bool> = true>
+auto vec_to_other(T const &a) {
+  return a;
+}
+
+template <class OtherT, class T>
+auto vec_to_other(vec<2, T> const &a) {
   return OtherT(a[0], a[1]);
 }
 
-template <class OtherT, class T> auto vec_to_other(vec<3, T> const &a) {
+template <class OtherT, class T>
+auto vec_to_other(vec<3, T> const &a) {
   return OtherT(a[0], a[1], a[2]);
 }
 
-template <class OtherT, class T> auto vec_to_other(vec<4, T> const &a) {
+template <class OtherT, class T>
+auto vec_to_other(vec<4, T> const &a) {
   return OtherT(a[0], a[1], a[2], a[3]);
 }
 
@@ -326,7 +336,7 @@ template <class T> inline auto tofloat(T const &a) {
 /* vector math functions */
 
 template <size_t N, class T>
-inline bool any(vec<N, T> const &a) {
+inline bool anyTrue(vec<N, T> const &a) {
   bool ret = false;
   for (size_t i = 0; i < N; i++) {
     ret = ret || (bool)a[i];
@@ -335,12 +345,12 @@ inline bool any(vec<N, T> const &a) {
 }
 
 template <class T>
-inline bool any(T const &a) {
+inline bool anyTrue(T const &a) {
     return (bool)a;
 }
 
 template <size_t N, class T>
-inline bool all(vec<N, T> const &a) {
+inline bool allTrue(vec<N, T> const &a) {
   bool ret = true;
   for (size_t i = 0; i < N; i++) {
     ret = ret && (bool)a[i];
@@ -349,7 +359,7 @@ inline bool all(vec<N, T> const &a) {
 }
 
 template <class T>
-inline bool all(T const &a) {
+inline bool allTrue(T const &a) {
     return (bool)a;
 }
 
@@ -365,7 +375,7 @@ inline auto dot(vec<N, T> const &a, vec<N, S> const &b) {
 }
 
 template <size_t N, class T>
-inline auto lengthsq(vec<N, T> const &a) {
+inline auto lengthSquared(vec<N, T> const &a) {
   std::decay_t<decltype(a[0])> res(0);
   for (size_t i = 0; i < N; i++) {
     res += a[i] * a[i];
@@ -423,36 +433,39 @@ inline auto tovec(vec<N, T> const &x) { return x; }
 
 using vec2f = vec<2, float>;
 using vec2d = vec<2, double>;
-using vec2i = vec<2, int>;
-using vec2l = vec<2, long>;
-using vec2h = vec<2, short>;
-using vec2c = vec<2, char>;
+using vec2i = vec<2, int32_t>;
+using vec2l = vec<2, intptr_t>;
+using vec2h = vec<2, int16_t>;
+using vec2c = vec<2, int8_t>;
 using vec2b = vec<2, bool>;
-using vec2I = vec<2, unsigned int>;
-using vec2L = vec<2, unsigned long>;
-using vec2H = vec<2, unsigned short>;
-using vec2C = vec<2, unsigned char>;
+using vec2I = vec<2, uint32_t>;
+using vec2L = vec<2, uintptr_t>;
+using vec2Q = vec<2, uint64_t>;
+using vec2H = vec<2, uint16_t>;
+using vec2C = vec<2, uint8_t>;
 using vec3f = vec<3, float>;
 using vec3d = vec<3, double>;
-using vec3i = vec<3, int>;
-using vec3l = vec<3, long>;
-using vec3h = vec<3, short>;
-using vec3c = vec<3, char>;
+using vec3i = vec<3, int32_t>;
+using vec3l = vec<3, intptr_t>;
+using vec3h = vec<3, int16_t>;
+using vec3c = vec<3, int8_t>;
 using vec3b = vec<3, bool>;
-using vec3I = vec<3, unsigned int>;
-using vec3L = vec<3, unsigned long>;
-using vec3H = vec<3, unsigned short>;
-using vec3C = vec<3, unsigned char>;
+using vec3I = vec<3, uint32_t>;
+using vec3L = vec<3, uintptr_t>;
+using vec3Q = vec<3, uint64_t>;
+using vec3H = vec<3, uint16_t>;
+using vec3C = vec<3, uint8_t>;
 using vec4f = vec<4, float>;
 using vec4d = vec<4, double>;
-using vec4i = vec<4, int>;
-using vec4l = vec<4, long>;
-using vec4h = vec<4, short>;
-using vec4c = vec<4, char>;
+using vec4i = vec<4, int32_t>;
+using vec4l = vec<4, intptr_t>;
+using vec4h = vec<4, int16_t>;
+using vec4c = vec<4, int8_t>;
 using vec4b = vec<4, bool>;
-using vec4I = vec<4, unsigned int>;
-using vec4L = vec<4, unsigned long>;
-using vec4H = vec<4, unsigned short>;
-using vec4C = vec<4, unsigned char>;
+using vec4I = vec<4, uint32_t>;
+using vec4L = vec<4, uintptr_t>;
+using vec4Q = vec<4, uint64_t>;
+using vec4H = vec<4, uint16_t>;
+using vec4C = vec<4, uint8_t>;
 
 }

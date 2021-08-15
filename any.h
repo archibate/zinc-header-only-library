@@ -5,6 +5,7 @@
 #include <variant>
 #include <cstdint>
 #include <optional>
+#include "vec.h"
 
 
 namespace zinc {
@@ -40,7 +41,6 @@ using scalar_type_variant = std::variant
         , double
         >;
 
-#ifdef ZINC_ANY_WITH_VECTOR
 template <size_t N>
 using vector_type_variant = std::variant
         < vec<N, bool>
@@ -55,7 +55,6 @@ using vector_type_variant = std::variant
         , vec<N, float>
         , vec<N, double>
         >;
-#endif
 
 template <class T, class = void>
 struct any_traits {
@@ -69,14 +68,12 @@ struct any_traits<T, std::void_t<decltype(
     using underlying_type = scalar_type_variant;
 };
 
-#ifdef ZINC_ANY_WITH_VECTOR
 template <size_t N, class T>
 struct any_traits<vec<N, T>, std::void_t<decltype(
         std::declval<scalar_type_variant &>() = std::declval<T>()
         )>> {
     using underlying_type = vector_type_variant<N>;
 };
-#endif
 
 template <class T>
 struct any_traits<T *, std::void_t<typename T::polymorphic_base_type>> {
@@ -122,34 +119,7 @@ struct any : std::any {
 };
 
 template <class T>
-T smart_any_cast(any const &a) {
-    if constexpr (std::is_same_v<T, any>) {
-        return a;
-    } else {
-        using V = any_underlying_type_t<T>;
-        decltype(auto) v = std::any_cast<V const &>(a);
-        if constexpr (std::is_pointer_v<T>) {
-            using U = std::remove_pointer_t<T>;
-            auto ptr = dynamic_cast<U *>(v);
-            if (!ptr) throw std::bad_cast();
-            return ptr;
-        } else if constexpr (is_shared_ptr<T>::value) {
-            using U = typename is_shared_ptr<T>::type;
-            auto ptr = std::dynamic_pointer_cast<U>(v);
-            if (!ptr) throw std::bad_cast();
-            return ptr;
-        } else if constexpr (is_variant<V>::value && !is_variant<T>::value) {
-            return std::visit([] (auto const &x) {
-                return (T)x;
-            }, v);
-        } else {
-            return v;
-        }
-    }
-}
-
-template <class T>
-std::optional<T> silent_any_cast(any const &a) {
+std::optional<T> smart_any_cast(any const &a) {
     if constexpr (std::is_same_v<T, any>) {
         return std::make_optional(a);
     } else {
